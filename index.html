@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>วงล้อสุ่มเลข</title>
+
+<style>
+body{
+    margin:0;
+    font-family:Segoe UI;
+    background:white;
+    text-align:center;
+}
+
+/* ทำให้ไม่ล็อกความกว้าง */
+.container{
+    margin:20px auto;
+    padding:20px;
+    width:90%;
+    max-width:720px;
+    background:white;
+    border-radius:25px;
+    box-shadow:0 25px 60px rgba(0,0,0,0.15);
+}
+
+h2{ color:#4b0082; }
+
+.wheel-wrapper{
+    position:relative;
+    display:inline-block;
+    margin:20px 0;
+}
+
+/* ทำให้วงล้อ responsive */
+canvas{
+    width:90vw;
+    max-width:420px;
+    height:auto;
+    border-radius:50%;
+    box-shadow:0 20px 50px rgba(0,0,0,0.35);
+}
+
+.arrow{
+    position:absolute;
+    top:-25px;
+    left:50%;
+    transform:translateX(-50%);
+    width:0;
+    height:0;
+    border-left:18px solid transparent;
+    border-right:18px solid transparent;
+    border-top:35px solid #ff1493;
+    z-index:10;
+}
+
+button{
+    padding:12px 22px;
+    margin:6px;
+    border:none;
+    border-radius:12px;
+    font-size:15px;
+    cursor:pointer;
+    background:#4b0082;
+    color:white;
+}
+
+.page-btn{ background:#6a0dad; }
+
+/* popup responsive */
+.popup{
+    position:fixed;
+    top:0;left:0;
+    width:100%;height:100%;
+    background:rgba(0,0,0,0.5);
+    display:none;
+    justify-content:center;
+    align-items:center;
+    padding:15px;
+}
+
+.popup-box{
+    background:white;
+    padding:25px;
+    border-radius:25px;
+    box-shadow:0 25px 60px rgba(0,0,0,0.3);
+    width:90%;
+    max-width:320px;
+}
+
+.result{
+    font-size:50px;
+    color:#ff1493;
+    font-weight:bold;
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+<h2 id="title">หน้า 1 : วงล้อ 2 ตัวเลข</h2>
+
+<div class="wheel-wrapper">
+<div class="arrow"></div>
+<canvas id="wheel" width="420" height="420"></canvas>
+</div>
+
+<br>
+<button onclick="spin()">🎯 หมุนวงล้อ</button>
+
+<p>เลือกหน้า:</p>
+<div id="pages"></div>
+</div>
+
+<div class="popup" id="popup">
+<div class="popup-box">
+<h3>🎉 ยินดีด้วย!</h3>
+<p>เลขที่สุ่มได้คือ</p>
+<div class="result" id="result"></div>
+<br>
+<button onclick="spin()">สุ่มต่อ</button>
+<button style="background:#e74c3c;" onclick="closePopup()">ปิด</button>
+</div>
+</div>
+
+<script>
+const canvas = document.getElementById("wheel");
+const ctx = canvas.getContext("2d");
+
+let currentNumbers = 2;
+let spinning = false;
+let rotation = 0;
+let speed = 0;
+
+function drawWheel(){
+    ctx.clearRect(0,0,420,420);
+
+    const center=210;
+    const radius=210;
+    const angle=2*Math.PI/currentNumbers;
+
+    ctx.save();
+    ctx.translate(center,center);
+    ctx.rotate(rotation);
+
+    for(let i=0;i<currentNumbers;i++){
+        ctx.beginPath();
+        ctx.moveTo(0,0);
+        ctx.arc(0,0,radius,i*angle,(i+1)*angle);
+        ctx.fillStyle=i%2==0?"#4b0082":"#6a0dad";
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.save();
+        ctx.rotate(i*angle+angle/2);
+        ctx.textAlign="right";
+        ctx.fillStyle="white";
+        ctx.font="bold 22px Arial";
+        ctx.fillText(i+1,radius-25,10);
+        ctx.restore();
+    }
+
+    ctx.restore();
+}
+
+function spin(){
+    if(spinning) return;
+    spinning=true;
+    closePopup();
+
+    speed = Math.random()*0.3 + 0.35;
+
+    function animate(){
+        rotation += speed;
+        speed *= 0.985;
+
+        drawWheel();
+
+        if(speed > 0.002){
+            requestAnimationFrame(animate);
+        }else{
+            spinning=false;
+
+            let normalized = (rotation % (2*Math.PI));
+            let pointerAngle = (3*Math.PI/2 - normalized + 2*Math.PI) % (2*Math.PI);
+
+            let segment = (2*Math.PI)/currentNumbers;
+            let result = Math.floor(pointerAngle/segment)+1;
+
+            document.getElementById("result").innerText=result;
+            document.getElementById("popup").style.display="flex";
+        }
+    }
+
+    animate();
+}
+
+function closePopup(){
+    document.getElementById("popup").style.display="none";
+}
+
+function changePage(p,n){
+    currentNumbers=n;
+    rotation=0;
+    drawWheel();
+    document.getElementById("title").innerText=`หน้า ${p} : วงล้อ ${n} ตัวเลข`;
+}
+
+function createPages(){
+    const pages=[
+        {p:1,n:2},{p:2,n:3},{p:3,n:4},{p:4,n:5},
+        {p:5,n:6},{p:6,n:7},{p:7,n:8},{p:8,n:9},{p:9,n:10}
+    ];
+
+    let html="";
+    pages.forEach(pg=>{
+        html+=`<button class="page-btn" onclick="changePage(${pg.p},${pg.n})">หน้า ${pg.p}</button>`;
+    });
+    document.getElementById("pages").innerHTML=html;
+}
+
+createPages();
+drawWheel();
+</script>
+
+</body>
+</html>
