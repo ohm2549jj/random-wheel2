@@ -2,7 +2,7 @@
 <html lang="th">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>วงล้อสุ่มเลข</title>
 
 <style>
@@ -13,7 +13,6 @@ body{
     text-align:center;
 }
 
-/* ทำให้ไม่ล็อกความกว้าง */
 .container{
     margin:20px auto;
     padding:20px;
@@ -32,7 +31,6 @@ h2{ color:#4b0082; }
     margin:20px 0;
 }
 
-/* ทำให้วงล้อ responsive */
 canvas{
     width:90vw;
     max-width:420px;
@@ -67,16 +65,18 @@ button{
 
 .page-btn{ background:#6a0dad; }
 
-/* popup responsive */
+/* ===== POPUP แก้ให้อยู่กลางจริง ===== */
 .popup{
     position:fixed;
-    top:0;left:0;
-    width:100%;height:100%;
+    inset:0;
     background:rgba(0,0,0,0.5);
+
     display:none;
     justify-content:center;
     align-items:center;
-    padding:15px;
+
+    padding:20px;
+    box-sizing:border-box;
 }
 
 .popup-box{
@@ -84,8 +84,11 @@ button{
     padding:25px;
     border-radius:25px;
     box-shadow:0 25px 60px rgba(0,0,0,0.3);
-    width:90%;
+
+    width:100%;
     max-width:320px;
+
+    text-align:center;
 }
 
 .result{
